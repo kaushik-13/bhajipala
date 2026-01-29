@@ -1,0 +1,308 @@
+<?php
+// Start session
+session_start();
+
+// Include database connection
+include('C:/xampp2/htdocs/khetbazar/partials/db_connect.php');
+
+// Secondary database connection
+$conn2 = mysqli_connect("localhost", "root", "", "verification_db");
+
+if (!$conn || !$conn2) {
+    die("Database connection failed: " . mysqli_connect_error());
+}
+
+// Initialize variables
+$exist = -1;
+
+if (isset($_POST['sign'])) {
+    // Sanitize inputs
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $license = mysqli_real_escape_string($conn, $_POST['license']);
+    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+    $adhar = mysqli_real_escape_string($conn, $_POST['addhar-no']);
+    $name = mysqli_real_escape_string($conn, $_POST['name']);
+    $pass = $_POST['pass'];
+    $cpass = $_POST['cpass'];
+    $add1 = mysqli_real_escape_string($conn, $_POST['add1']);
+    $city = mysqli_real_escape_string($conn, $_POST['city']);
+    $state = mysqli_real_escape_string($conn, $_POST['state']);
+    $pin = mysqli_real_escape_string($conn, $_POST['pin']);
+
+    // Check if email already exists
+    $existing_check = "SELECT `email` FROM `dealer` WHERE email='$email'";
+    $result = mysqli_query($conn, $existing_check);
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        $exist = 1;
+        echo "Email already exists.";
+    } else {
+        // Verify dealer license
+        $verify_dealer = "SELECT * FROM `licence_details` WHERE `lic_no`='$license' AND `name`='$name'";
+        $dealer_result = mysqli_query($conn2, $verify_dealer);
+
+        if ($dealer_result && mysqli_num_rows($dealer_result) > 0) {
+            $exist = 0;
+
+            // Check if passwords match
+            if ($pass === $cpass) {
+                // Handle file uploads
+                $uploadedPaths = [];
+                $errors = [];
+
+                if (isset($_FILES['addhar_file']) && isset($_FILES['license_file']) && isset($_FILES['Photo_file'])) {
+                    $adhar_dir = "C:/xampp2/htdocs/khetbazar/components/dealer/adhar_img/";
+                    $profile_dir = "C:/xampp2/htdocs/khetbazar/components/dealer/profile_images/";
+                    $lic_dir = "C:/xampp2/htdocs/khetbazar/components/dealer/lic_img/";
+
+                    // Aadhaar file
+                    $adhar_file = $_FILES['addhar_file'];
+                    $adharNewName = $name . '_' . $email . '_adhar.' . pathinfo($adhar_file['name'], PATHINFO_EXTENSION);
+                    $adharUploadFile = $adhar_dir . basename($adharNewName);
+
+                    if (move_uploaded_file($adhar_file['tmp_name'], $adharUploadFile)) {
+                        $uploadedPaths['adhar'] = $adharUploadFile;
+                    } else {
+                        $errors[] = "Failed to upload Aadhaar file.";
+                    }
+
+                    // License file
+                    $license_file = $_FILES['license_file'];
+                    $licenseNewName = $name . '_' . $email . '_licence.' . pathinfo($license_file['name'], PATHINFO_EXTENSION);
+                    $licenseUploadFile = $lic_dir . basename($licenseNewName);
+
+                    if (move_uploaded_file($license_file['tmp_name'], $licenseUploadFile)) {
+                        $uploadedPaths['licence'] = $licenseUploadFile;
+                    } else {
+                        $errors[] = "Failed to upload license file.";
+                    }
+
+                    // Profile picture
+                    $Photo_file = $_FILES['Photo_file'];
+                    $profileNewName = $name . '_' . $email . '_profile.' . pathinfo($Photo_file['name'], PATHINFO_EXTENSION);
+                    $profileUploadFile = $profile_dir . basename($profileNewName);
+
+                    if (move_uploaded_file($Photo_file['tmp_name'], $profileUploadFile)) {
+                        $uploadedPaths['profile'] = $profileUploadFile;
+                    } else {
+                        $errors[] = "Failed to upload profile picture.";
+                    }
+                }
+
+                // Handle insertion into database
+                if (empty($errors)) {
+                    $adhar_location = $uploadedPaths['adhar'] ?? null;
+                    $lic_loc = $uploadedPaths['licence'] ?? null;
+                    $profile_loc = $uploadedPaths['profile'] ?? null;
+
+                    $pass_hash = password_hash($pass, PASSWORD_DEFAULT);
+
+                    $sql = "INSERT INTO `dealer` 
+                        (`name`, `image`, `phone`, `email`, `password`, `status`, `licence no`, `licence_img`, `location`, `state`, `date`) 
+                        VALUES 
+                        ('$name', '$profile_loc', '$phone', '$email', '$pass_hash', 'active', '$license', '$lic_loc', '$add1', '$state', current_timestamp())";
+
+                    if (mysqli_query($conn, $sql)) {
+                        $_SESSION['d_email'] = $email;
+                        header("Location: dashboard.php");
+                        exit();
+                    } else {
+                        echo "Problem inserting data: " . mysqli_error($conn);
+                    }
+                } else {
+                    foreach ($errors as $error) {
+                        echo $error . "<br>";
+                    }
+                }
+            } else {
+                echo "Passwords do not match.";
+            }
+        } else {
+            echo "Invalid license details.";
+        }
+    }
+}
+?>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha384-oxRU9esBLAnMZtNo1QRR4AKjyX2obZ1c5Ln59/sIVx+4pu5BspxIaaSd1PphjiMZ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="F-register.css">
+    <link rel="shortcut icon" href="images/icon.ico" type="image/x-icon">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <img src="images/icon.ico" alt="icon" style="height: 40px;">
+            <span id="logo">BhajiPala.in</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <form class="form-inline my-2 my-lg-0 mx-auto">
+                <div class="col-auto">
+                    <div class="input-group">
+                        <input type="text" style="border-top-left-radius: 50px;border-bottom-left-radius: 50px;" class="form-control" id="autoSizingInputGroup" placeholder="Search">
+                        <div class="input-group-text" style="border-top-right-radius: 50px;border-bottom-right-radius: 50px"><button class="btn btn-sm" type="submit"><i class="fa fa-search"></i></button></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="navbar-nav ml-auto">
+            <a class="nav-item nav-link" href="homepage.html">Home</a>
+            <a class="nav-item nav-link" href="#">About Us</a>
+            <a class="nav-item nav-link" href="crop-details.html">Services</a>
+            <div class="dropdown">
+                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img src="images/profile_icon.jpg" alt="Profile Icon" class="profile-icon">
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="F-register.html">Register as Farmer</a>
+                    <a class="dropdown-item" href="V-register.html">Register as Vendor</a>
+                    <a class="dropdown-item" href="Farmer-login.php">Login as Farmer</a>
+                    <a class="dropdown-item" href="V-login.html">Login as Vendor</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section id="hero">
+        <div class="bar">
+                <div class="row">
+                    <div class="col-sm">
+                        Register as Vendor
+                    </div>
+                </div>
+            </div>
+        <br>
+            <form method="post" action="<?php $_PHP_SELF ?>" enctype="multipart/form-data">
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="name">Name:</label>
+                        <input type="name" name="name" class="form-control" id="name" placeholder="Name">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="license">license:</label>
+                        <input type="text" name="license" class="form-control" id="license" placeholder="license"
+                            status="required">
+                    </div>
+
+
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="inputEmail4">Email:</label>
+                        <input type="email" name="email" class="form-control" id="inputEmail4" placeholder="Email"
+                            status="required">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="addhar-no" class="addhar-no">Addhar Number</label><br>
+                        <input type="text" id="addhar-no" minlength="12" maxlength="12" class="form-control"
+                            name="addhar-no" status="required">
+                    </div>
+
+                </div>
+
+
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="phone">Contact Number:</label>
+                        <input type="phone" name="phone"  minlength="10" maxlength="10" class="form-control" id="phone"
+                            placeholder="Phone" status="required">
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label for="inputPassword4">Password:</label>
+                        <input type="password" name="pass" class="form-control" id="inputPassword4"
+                            placeholder="Password" status="required">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="inputPassword4"> Confirm Password:</label>
+                        <input type="password" name="cpass" class="form-control" id="inputPassword4"
+                            placeholder="Confirm Password" status="required">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputAddress">Address:</label>
+                    <input type="text" name="add1" class="form-control" id="inputAddress" placeholder="Enter address"
+                        status="required">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="inputCity">City:</label>
+                        <input type="text" name="city" class="form-control" id="inputCity" status="required">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="inputState">State:</label>
+                        <select id="inputState" class="form-control" status="required">
+                            <option selected>Choose state</option>
+                            <option>Maharashtra</option>
+                            <option>Karnataka</option>
+                            <option>Odisha</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="inputZip">Pincode:</label>
+                        <input type="text" class="form-control" name="pin" id="inputZip" status="required">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="addhar" class="addhar">Upload Addhar:</label><br>
+                        <input type="file" id="addhar" name="addhar_file" accept="image/*" status="required">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="license" class="license">Upload license:</label><br>
+                        <input type="file" id="license" name="license_file" accept="image/*" status="required">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="photo" class="photo">Upload Photo:</label><br>
+                        <input type="file" id="photo" name="Photo_file" accept="image/*">
+                    </div>
+                </div>
+                <button type="submit" name="sign" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+    </section>
+    <div class="footer">
+        <p>&copy; 2025 BhajiPala - All Rights Reserved.</p>
+    </div>
+    <script>
+        function validateForm() {
+            var phone = document.getElementById("phone").value;
+            var aadhar = document.getElementById("aadhar-no").value;
+
+            var phoneRegex = /^[0-9]{10}$/;
+            var aadharRegex = /^[0-9]{12}$/;
+
+            if (!phoneRegex.test(phone)) {
+                alert("Invalid phone number format!");
+                return false;
+            }
+
+            if (!aadharRegex.test(aadhar)) {
+                alert("Invalid Aadhaar number format!");
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>

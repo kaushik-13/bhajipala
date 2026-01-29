@@ -1,0 +1,13 @@
+
+$sql="INSERT INTO `dealer` (`name`, `image`, `phone`, `email`, `password`, `status`, `licence no`, `licence_img`, `location`, `state`, `date`) VALUES ('$name', '$Photo_file', '$phone', '$email', '$pass', 'active', '$license', '$license_file', '$add1', '$state', current_timestamp());";
+
+if(mysqli_query($conn,$sql)){
+            echo"Record inserted successfully";
+            session_start();
+            $_SESSION['d_email']=$email;
+            header("Location: dashboard.php");
+            exit();
+        }
+        else{
+            echo"Problem inserting data";
+        }

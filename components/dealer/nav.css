@@ -1,0 +1,98 @@
+.navbar {
+    background-color: #28a745;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+
+#logo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-left: 10px;
+    color: white;
+}
+
+.form-inline {
+    display: flex;
+}
+
+.form-control {
+    padding: 5px;
+    border: none;
+    border-radius: 4px;
+}
+
+.navbar-nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #ccc;
+}
+
+.profile-icon {
+    width: 40px; 
+    height: 40px;
+    border-radius: 50%;
+    max-width: 40px; 
+}
+
+.profile-icon:hover {
+    background-color: white;
+    cursor: pointer;
+}
+
+/* Dropdown */
+.dropdown {
+    position: relative; /* Make the dropdown container relative */
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin: 0;
+    min-width: 160px;
+    padding:  0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    
+    opacity: 1; 
+    max-width: 250px; 
+    right: initial; /*Ensure the dropdown stays within the viewport */
+    left: auto;
+    transform: translateX(-100%); 
+  }
+  .dropdown-menu a {
+    display: block;
+    padding: 8px 15px;
+    text-decoration: none;
+    color: #333;
+  }
+  
+  /* Hide the dropdown by default */
+  .dropdown.hide {
+    display: none; 
+  }
+  /* Show the dropdown on hover */
+  /*.dropdown:hover .dropdown-menu {
+    display: block; 
+  }*/
+  
+  #dropdownMenuButton {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+html {
+    scroll-behavior: smooth;
+}

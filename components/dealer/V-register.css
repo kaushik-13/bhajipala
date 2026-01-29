@@ -1,0 +1,173 @@
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-image: url('images/image1.jpg');
+    background-size: cover;
+    background-position: center;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.navbar {
+    background-color: #28a745;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+
+#logo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-left: 10px;
+    color: white;
+}
+
+.form-inline {
+    display: flex;
+}
+
+.form-control {
+    padding: 5px;
+    border: none;
+    border-radius: 4px;
+}
+
+.navbar-nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #ccc;
+}
+
+.profile-icon {
+    width: 40px; 
+    height: 40px;
+    border-radius: 50%;
+    max-width: 40px; 
+}
+
+.profile-icon:hover {
+    background-color: white;
+    cursor: pointer;
+}
+
+/* Dropdown */
+.dropdown {
+    position: relative; /* Make the dropdown container relative */
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin: 0;
+    min-width: 160px;
+    padding:  0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    
+    opacity: 1; 
+    max-width: 250px; 
+    right: initial; /*Ensure the dropdown stays within the viewport */
+    left: auto;
+    transform: translateX(-100%); 
+  }
+  .dropdown-menu a {
+    display: block;
+    padding: 8px 15px;
+    text-decoration: none;
+    color: #333;
+  }
+  
+  /* Hide the dropdown by default */
+  .dropdown.hide {
+    display: none; 
+  }
+  /* Show the dropdown on hover */
+  /*.dropdown:hover .dropdown-menu {
+    display: block; 
+  }*/
+  
+  #dropdownMenuButton {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+html {
+    scroll-behavior: smooth;
+}
+
+#hero {
+    /*background-image: url('images/image1.jpg'); */
+    background-size: cover;
+    background-position: center;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+.hero-container {
+    background: rgba(0, 0, 0, 0.5); 
+    padding: 2rem;
+    border-radius: 8px;
+    margin-top: 20rem;
+}
+
+.hero-container h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.hero-container p {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+#uploadphoto {
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    
+}
+
+.bar {
+    background-color: #4c4848;
+    height: 35px;
+    width: 500px;
+    margin: 20px auto 20px auto;
+    border-radius: 40px;
+    text-align: center;
+    font-size: larger;
+    padding-top:5px;
+    color: white;
+  }
+
+.footer {
+    background-color: #28a745; 
+    color: white;
+    padding: 0.5rem 0;
+    text-align: center;
+}
+.footer p {
+    margin: 0;  
+    font-size: 0.9rem;
+}
